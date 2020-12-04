@@ -160,7 +160,6 @@ template <typename Type>
 mkldnn::memory::data_type MKLDNNGetDataType() {
   return mkldnn::memory::data_type::undef;
 }
-
 template <>
 inline mkldnn::memory::data_type MKLDNNGetDataType<float>() {
   return mkldnn::memory::data_type::f32;
@@ -177,7 +176,6 @@ template <>
 inline mkldnn::memory::data_type MKLDNNGetDataType<uint8_t>() {
   return mkldnn::memory::data_type::u8;
 }
-
 template <>
 inline mkldnn::memory::data_type
 MKLDNNGetDataType<paddle::platform::bfloat16>() {

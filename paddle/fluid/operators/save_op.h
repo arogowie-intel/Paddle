@@ -27,6 +27,14 @@ limitations under the License. */
 
 namespace paddle {
 namespace operators {
+
+namespace detail {
+
+const framework::Variable getOneDNNCachedVariable(
+    const framework::ExecutionContext &ctx);
+
+}  // namespace detail
+
 // define LOOKUP_TABLE_PATH for checkpoint notify to save lookup table variables
 // to directory specified.
 constexpr char LOOKUP_TABLE_PATH[] = "kLookupTablePath";
@@ -41,6 +49,13 @@ class SaveOpKernel : public framework::OpKernel<T> {
     PADDLE_ENFORCE_NOT_NULL(
         input_var, platform::errors::InvalidArgument(
                        "The variable %s to be saved cannot be found.", iname));
+
+#ifdef PADDLE_WITH_MKLDNN
+    framework::Variable cached_var = detail::getOneDNNCachedVariable(ctx);
+    if (cached_var.IsInitialized()) {
+      input_var = &cached_var;
+    }
+#endif  // PADDLE_WITH_MKLDNN
 
     auto filename = ctx.Attr<std::string>("file_path");
     auto overwrite = ctx.Attr<bool>("overwrite");
