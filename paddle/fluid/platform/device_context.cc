@@ -573,6 +573,7 @@ MKLDNNDeviceContextThreadLocals::Body::Body()
   cur_input_shape_str = "";
   cur_input_shape_cache_capacity = 1;
   cur_paddle_data_layout = paddle::framework::DataLayout::kNCHW;
+  key_sink.reserve(64);
 }
 
 // When Thread finish we clear oneDNN cache

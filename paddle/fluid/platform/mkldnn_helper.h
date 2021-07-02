@@ -436,6 +436,19 @@ inline void AppendKey(std::string* key, const std::vector<T>& dims) {
   }
 }
 
+template <typename... ArgTypes>
+inline const std::string& CreateKey(
+    const platform::MKLDNNDeviceContext& dev_ctx, ArgTypes&&... args) {
+  std::string& key =
+      paddle::platform::MKLDNNDeviceContext::tls().get_key_sink();
+  // make sure we work on clean space
+  key.clear();
+  using expand_type = int[];
+  expand_type{0, (AppendKey(&key, std::forward<ArgTypes>(args)), 0)...};
+  key += paddle::platform::MKLDNNDeviceContext::tls().get_key_suffix();
+  return key;
+}
+
 // If MKLDNN build and CPU place then register suffix in DeviceContext
 inline void AttachPointerHashToMKLDNNKey(void* ptr,
                                          const platform::Place& place) {
@@ -461,17 +474,6 @@ inline void AttachPointerHashToMKLDNNKey(void* ptr,
       paddle::platform::MKLDNNDeviceContext::tls().disable_tid_in_key();
     }
   }
-}
-
-template <typename... ArgTypes>
-inline std::string CreateKey(const platform::MKLDNNDeviceContext& dev_ctx,
-                             ArgTypes&&... args) {
-  std::string key;
-  key.reserve(64);
-  using expand_type = int[];
-  expand_type{0, (AppendKey(&key, std::forward<ArgTypes>(args)), 0)...};
-  key += paddle::platform::MKLDNNDeviceContext::tls().get_key_suffix();
-  return key;
 }
 
 inline std::string ExtendKeyWithThreadInfoIfNeeded(

@@ -696,6 +696,8 @@ class MKLDNNDeviceContextThreadLocals {
     std::string key_suffix;  // Key identifying current Executor
     bool key_attach_thread_id = true;
     void* exec_ptr_ = nullptr;
+    // The single storage for creating cache keys.
+    std::string key_sink;
 
     Body();
     ~Body();
@@ -714,6 +716,7 @@ class MKLDNNDeviceContextThreadLocals {
     bool is_tid_used_in_key(void) const { return key_attach_thread_id; }
     void set_curr_exec(void* exec_ptr) { exec_ptr_ = exec_ptr; }
     void* get_curr_exec(void) const { return exec_ptr_; }
+    std::string& get_key_sink() { return key_sink; }
   };
   MKLDNNDeviceContextThreadLocals() = default;
   MKLDNNDeviceContextThreadLocals(const MKLDNNDeviceContextThreadLocals& c) =

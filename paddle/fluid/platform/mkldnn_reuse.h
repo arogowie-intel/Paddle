@@ -384,7 +384,7 @@ class MKLDNNHandlerT {
   const MKLDNNDeviceContext& dev_ctx_;
   mkldnn::engine engine_;
   platform::Place place_;
-  std::string key_common_;
+  const std::string& key_common_;
   std::string key_;
   std::shared_ptr<typename TForward::primitive_desc> fwd_pd_;
   std::shared_ptr<typename TBackward::primitive_desc> bwd_pd_;
@@ -584,7 +584,7 @@ class MKLDNNHandler {
  protected:
   const MKLDNNDeviceContext& dev_ctx_;
   mkldnn::engine engine_;
-  std::string key_common_;
+  const std::string& key_common_;
   std::string key_;
 };
 
@@ -810,8 +810,9 @@ class ActivationMKLDNNHandler
       if (algorithm == mkldnn::algorithm::eltwise_linear) {
         bool bias_after_scale = ctx.Attr<bool>("bias_after_scale");
         auto* scale_tensor = ctx.Input<Tensor>("ScaleTensor");
-        alpha = (scale_tensor == nullptr) ? ctx.Attr<float>("scale")
-                                          : (float)*(scale_tensor->data<T>());
+        alpha = (scale_tensor == nullptr)
+                    ? ctx.Attr<float>("scale")
+                    : static_cast<float>(*(scale_tensor->data<T>()));
         beta = ctx.Attr<float>("bias");
         // if bias_after_scale == true
         //   out = scale*X + bias
